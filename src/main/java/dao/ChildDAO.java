@@ -3,6 +3,7 @@ package dao;
 import model.Child;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -58,4 +59,35 @@ public interface ChildDAO {
      * @throws SQLException If a database access error occurs
      */
     List<Child> findChildrenWithoutBirthDate() throws SQLException;
+
+    /**
+     * Finds children whose first names contain the given string (case-insensitive).
+     *
+     * @param firstName The string to search for in children first names
+     * @return A list of children whose first name contains the given string
+     * @throws SQLException             If a database access error occurs
+     * @throws IllegalArgumentException If firstName is null
+     */
+    List<Child> findChildrenByFirstNamePart(String firstName) throws SQLException;
+
+    /**
+     * Finds children whose last names contain the given string (case-insensitive).
+     *
+     * @param lastName The string to search for in children last names
+     * @return A list of children whose last name contains the given string
+     * @throws SQLException             If a database access error occurs
+     * @throws IllegalArgumentException If lastName is null
+     */
+    List<Child> findChildrenByLastNamePart(String lastName) throws SQLException;
+
+    /**
+     * Finds children born on the given date.
+     *
+     * @param birthdate The birthdate to search for, in "yyyy-MM-dd" format
+     * @return A list of children born on the specified date
+     * @throws SQLException             If a database access error occurs
+     * @throws IllegalArgumentException If birthdate is null or has invalid format
+     */
+    List<Child> findChildrenByBirthdate(LocalDate birthdate) throws SQLException;
+
 }

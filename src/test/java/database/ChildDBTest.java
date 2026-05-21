@@ -181,6 +181,7 @@ class ChildDBTest {
         assertTrue(foundWithout, "Should find child without birth date");
         assertFalse(foundWith, "Should not find child with birth date");
     }
+
     @Test
     @DisplayName("Should throw exception when adding null child")
     void addChildShouldThrowExceptionForNullChild() {

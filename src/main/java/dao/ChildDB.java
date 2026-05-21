@@ -18,6 +18,9 @@ public class ChildDB implements ChildDAO, AutoCloseable {
     private static final String SQL_DELETE_CHILD = "DELETE FROM child WHERE id = ?;";
     private static final String SQL_SELECT_CHILDREN_BY_MIN_AGE = "SELECT id, first_name, last_name, birth_date FROM child WHERE EXTRACT(YEAR FROM AGE(birth_date)) >= ?;";
     private static final String SQL_SELECT_CHILDREN_WITHOUT_BIRTHDATE = "SELECT id, first_name, last_name, birth_date FROM child WHERE birth_date IS NULL;";
+    private static final String SQL_SELECT_CHILDREN_BY_FIRSTNAME = "SELECT id, first_name, last_name, birth_date FROM child WHERE LOWER(first_name) LIKE LOWER(?);";
+    private static final String SQL_SELECT_CHILDREN_BY_LASTNAME = "SELECT id, first_name, last_name, birth_date FROM child WHERE LOWER(last_name) LIKE LOWER(?);";
+    private static final String SQL_SELECT_CHILDREN_BY_BIRTHDATE = "SELECT id, first_name, last_name, birth_date FROM child WHERE birth_date = ?;";
 
     private final Connection conn;
     private final boolean ownsConnection;
@@ -169,6 +172,41 @@ public class ChildDB implements ChildDAO, AutoCloseable {
         }
     }
 
+    @Override
+    public List<Child> findChildrenByFirstNamePart(String firstName) throws SQLException {
+        try (PreparedStatement statement = conn.prepareStatement(SQL_SELECT_CHILDREN_BY_FIRSTNAME)) {
+            statement.setString(1, "%" + firstName + "%");
+            try (ResultSet rs = statement.executeQuery()) {
+                List<Child> children = fromResultSetToChild(rs);
+                log.info("Found {} children by first name part '{}'", children.size(), firstName);
+                return children;
+            }
+        }
+    }
+
+    @Override
+    public List<Child> findChildrenByLastNamePart(String lastName) throws SQLException {
+        try (PreparedStatement statement = conn.prepareStatement(SQL_SELECT_CHILDREN_BY_LASTNAME)) {
+            statement.setString(1, "%" + lastName + "%");
+            try (ResultSet rs = statement.executeQuery()) {
+                List<Child> children = fromResultSetToChild(rs);
+                log.info("Found {} children by last name part '{}'", children.size(), lastName);
+                return children;
+            }
+        }
+    }
+
+    @Override
+    public List<Child> findChildrenByBirthdate(LocalDate birthDate) throws SQLException {
+        try (PreparedStatement statement = conn.prepareStatement(SQL_SELECT_CHILDREN_BY_BIRTHDATE)) {
+            statement.setDate(1, Date.valueOf(birthDate));
+            try (ResultSet rs = statement.executeQuery()) {
+                List<Child> children = fromResultSetToChild(rs);
+                log.info("Found {} children by birth date '{}'", children.size(), birthDate);
+                return children;
+            }
+        }
+    }
 
     private static List<Child> fromResultSetToChild(ResultSet rs) throws SQLException {
         List<Child> children = new ArrayList<>();
